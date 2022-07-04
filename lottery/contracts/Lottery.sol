@@ -1,37 +1,42 @@
+// SPDX-License-Identifier: GPL-3.0
+
 pragma solidity ^0.4.17;
 
-contract Lottery{
+contract Lottery {
+
     address manager;
     address[] players;
 
-    function lottery() public {
+    function Lottery() public {
         manager = msg.sender;
     }
 
-    function enter() public payable {
-        require(msg.value > 1 ether);
+    function join() public payable {
+        require(msg.value > 0.1 ether);
         players.push(msg.sender);
     }
 
-    function getManagerAddress() public view returns(address) {
-        return manager;
+    function random() private returns (uint) {
+        // sha3 and now have been deprecated
+        return uint(keccak256(block.difficulty, now, players));
+        // convert hash to integer
+        // players is an array of entrants
+        
     }
 
-    function getPlayer1() public view returns(address){
-        return players[0];
+    function pickWinnder() public onlyManager {
+        uint index = random() % players.length;
+        players[index].transfer(this.balance);
     }
 
-    function random()  private view returns(uint){
-        return uint(keccak256(block.difficulty,now,players));
+    modifier onlyManager() {
+        require(msg.sender ==  manager);
+        _;
     }
 
-    function pickWinner() public  {
-        // uint index = random() % players.length;
-        players[0].transfer(this.balance);
-    } 
-
-
-    function getPlayers() public view returns(address[] ){
+    function getPlayer() public view returns(address[]){
         return players;
     }
+
 }
+
